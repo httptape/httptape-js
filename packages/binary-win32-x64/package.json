@@ -1,0 +1,10 @@
+{
+  "name": "@httptape/binary-win32-x64",
+  "version": "0.0.1",
+  "description": "Platform-specific httptape binary for Windows x64",
+  "license": "Apache-2.0",
+  "os": ["win32"],
+  "cpu": ["x64"],
+  "files": ["bin/"],
+  "preferUnplugged": true
+}

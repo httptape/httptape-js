@@ -1,0 +1,10 @@
+{
+  "name": "@httptape/binary-linux-arm64",
+  "version": "0.0.1",
+  "description": "Platform-specific httptape binary for Linux ARM64",
+  "license": "Apache-2.0",
+  "os": ["linux"],
+  "cpu": ["arm64"],
+  "files": ["bin/"],
+  "preferUnplugged": true
+}
