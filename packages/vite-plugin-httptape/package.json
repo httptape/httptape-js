@@ -25,11 +25,11 @@
     "vite": ">=6"
   },
   "optionalDependencies": {
-    "@httptape/binary-darwin-arm64": "0.0.1",
-    "@httptape/binary-darwin-x64": "0.0.1",
-    "@httptape/binary-linux-x64": "0.0.1",
-    "@httptape/binary-linux-arm64": "0.0.1",
-    "@httptape/binary-win32-x64": "0.0.1"
+    "@httptape/binary-darwin-arm64": "workspace:*",
+    "@httptape/binary-darwin-x64": "workspace:*",
+    "@httptape/binary-linux-x64": "workspace:*",
+    "@httptape/binary-linux-arm64": "workspace:*",
+    "@httptape/binary-win32-x64": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

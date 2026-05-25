@@ -41,6 +41,22 @@ importers:
       vitest:
         specifier: ^3.0.0
         version: 3.2.4(@types/node@22.19.19)
+    optionalDependencies:
+      '@httptape/binary-darwin-arm64':
+        specifier: workspace:*
+        version: link:../binary-darwin-arm64
+      '@httptape/binary-darwin-x64':
+        specifier: workspace:*
+        version: link:../binary-darwin-x64
+      '@httptape/binary-linux-arm64':
+        specifier: workspace:*
+        version: link:../binary-linux-arm64
+      '@httptape/binary-linux-x64':
+        specifier: workspace:*
+        version: link:../binary-linux-x64
+      '@httptape/binary-win32-x64':
+        specifier: workspace:*
+        version: link:../binary-win32-x64
 
 packages:
 
