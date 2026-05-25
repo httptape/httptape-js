@@ -1,0 +1,10 @@
+{
+  "name": "@httptape/binary-darwin-x64",
+  "version": "0.0.1",
+  "description": "Platform-specific httptape binary for macOS x64 (Intel)",
+  "license": "Apache-2.0",
+  "os": ["darwin"],
+  "cpu": ["x64"],
+  "files": ["bin/"],
+  "preferUnplugged": true
+}
