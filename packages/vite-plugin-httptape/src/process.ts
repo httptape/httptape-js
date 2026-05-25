@@ -96,6 +96,7 @@ export function killGracefully(child: ChildProcess | undefined): void {
       // Already dead.
     }
   }, GRACEFUL_SHUTDOWN_MS);
+  timeout.unref();
 
   child.on('close', () => {
     clearTimeout(timeout);

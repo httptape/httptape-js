@@ -50,7 +50,9 @@ export default function httptape(options: HttptapeOptions = {}): Plugin {
               target: `http://localhost:${port}`,
               changeOrigin: true,
               rewrite: (path: string) =>
-                path.replace(new RegExp(`^${routePrefix}`), ''),
+                path.startsWith(routePrefix)
+                  ? path.slice(routePrefix.length)
+                  : path,
             },
           },
         },
