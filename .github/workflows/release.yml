@@ -1,0 +1,120 @@
+# .github/workflows/release.yml
+#
+# Cross-repo release pipeline: receiver half.
+#
+# Triggered by httptape/httptape's release.yml via repository_dispatch, or
+# manually via workflow_dispatch for testing. Builds the httptape Go binary
+# for 5 platform/arch combos, sets the released version on every workspace
+# package, and publishes to npm.
+#
+# Required secrets:
+#   NPM_TOKEN — npm automation token with publish rights on @httptape/* and
+#               vite-plugin-httptape. Must be added to this repo's secrets
+#               before the workflow can succeed.
+
+name: Release
+
+on:
+  repository_dispatch:
+    types: [httptape-release]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "httptape version to release (e.g. 0.13.2)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve version
+        id: version
+        run: |
+          VERSION="${{ github.event.client_payload.version || inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            echo "::error::No version provided"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout httptape-js
+        uses: actions/checkout@v4
+
+      - name: Checkout httptape Go source
+        uses: actions/checkout@v4
+        with:
+          repository: httptape/httptape
+          ref: ${{ steps.version.outputs.tag }}
+          path: httptape-src
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ./httptape-src/go.mod
+
+      - name: Cross-compile binaries
+        run: |
+          LDFLAGS="-s -w"
+          SRC="./httptape-src/cmd/httptape"
+
+          GOOS=darwin  GOARCH=arm64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-darwin-arm64/bin/httptape  "$SRC"
+          GOOS=darwin  GOARCH=amd64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-darwin-x64/bin/httptape    "$SRC"
+          GOOS=linux   GOARCH=amd64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-linux-x64/bin/httptape     "$SRC"
+          GOOS=linux   GOARCH=arm64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-linux-arm64/bin/httptape   "$SRC"
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-win32-x64/bin/httptape.exe "$SRC"
+
+      - name: Set package versions
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          for pkg in \
+            packages/binary-darwin-arm64 \
+            packages/binary-darwin-x64 \
+            packages/binary-linux-x64 \
+            packages/binary-linux-arm64 \
+            packages/binary-win32-x64 \
+            packages/vite-plugin-httptape; do
+            jq --arg v "$VERSION" '.version = $v' "$pkg/package.json" > "$pkg/package.json.tmp"
+            mv "$pkg/package.json.tmp" "$pkg/package.json"
+          done
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build vite-plugin-httptape
+        run: pnpm --filter vite-plugin-httptape build
+
+      - name: Publish binary packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          for pkg in \
+            packages/binary-darwin-arm64 \
+            packages/binary-darwin-x64 \
+            packages/binary-linux-x64 \
+            packages/binary-linux-arm64 \
+            packages/binary-win32-x64; do
+            cd "$pkg"
+            pnpm publish --access public --no-git-checks
+            cd "$GITHUB_WORKSPACE"
+          done
+
+      - name: Publish vite-plugin-httptape
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/vite-plugin-httptape
+          pnpm publish --access public --no-git-checks
