@@ -43,10 +43,10 @@ jobs:
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Checkout httptape-js
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Checkout httptape Go source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: httptape/httptape
           ref: ${{ steps.version.outputs.tag }}
