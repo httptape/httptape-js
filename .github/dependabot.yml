@@ -1,0 +1,62 @@
+# .github/dependabot.yml
+#
+# Dependabot v2 configuration for httptape-js.
+#
+# Scope:
+#   - npm dependencies across the pnpm workspace (root manifest + all
+#     packages/* members; pnpm workspaces resolve from the root lockfile,
+#     so a single root entry covers every member).
+#   - GitHub Actions used by the ci.yml / release.yml workflows.
+#
+# Grouping policy:
+#   - Minor + patch updates per ecosystem are batched into a single PR
+#     (`minor-and-patch` group); major updates ship as individual PRs so
+#     each likely-breaking change is reviewed in isolation.
+#
+# Cadence:
+#   - Weekly on Mondays at 09:00 UTC — matches the httptape core repo.
+#
+# Labels:
+#   - `dependencies` plus an ecosystem tag (`npm` / `github-actions`).
+
+version: 2
+updates:
+  # ----- npm: pnpm workspace (root covers packages/* members) -----
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Etc/UTC"
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ----- GitHub Actions (ci.yml, release.yml) -----
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Etc/UTC"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
