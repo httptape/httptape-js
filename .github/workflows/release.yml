@@ -58,15 +58,19 @@ jobs:
           go-version-file: ./httptape-src/go.mod
 
       - name: Cross-compile binaries
+        # go build must run inside the httptape module (httptape-js has no
+        # go.mod at the repo root), so -C enters the checkout and -o paths
+        # point back out into the workspace.
         run: |
           LDFLAGS="-s -w"
-          SRC="./httptape-src/cmd/httptape"
+          SRC="./cmd/httptape"
+          OUT="$GITHUB_WORKSPACE/packages"
 
-          GOOS=darwin  GOARCH=arm64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-darwin-arm64/bin/httptape  "$SRC"
-          GOOS=darwin  GOARCH=amd64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-darwin-x64/bin/httptape    "$SRC"
-          GOOS=linux   GOARCH=amd64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-linux-x64/bin/httptape     "$SRC"
-          GOOS=linux   GOARCH=arm64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-linux-arm64/bin/httptape   "$SRC"
-          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="$LDFLAGS" -o packages/binary-win32-x64/bin/httptape.exe "$SRC"
+          GOOS=darwin  GOARCH=arm64 go build -C httptape-src -trimpath -ldflags="$LDFLAGS" -o "$OUT/binary-darwin-arm64/bin/httptape"  "$SRC"
+          GOOS=darwin  GOARCH=amd64 go build -C httptape-src -trimpath -ldflags="$LDFLAGS" -o "$OUT/binary-darwin-x64/bin/httptape"    "$SRC"
+          GOOS=linux   GOARCH=amd64 go build -C httptape-src -trimpath -ldflags="$LDFLAGS" -o "$OUT/binary-linux-x64/bin/httptape"     "$SRC"
+          GOOS=linux   GOARCH=arm64 go build -C httptape-src -trimpath -ldflags="$LDFLAGS" -o "$OUT/binary-linux-arm64/bin/httptape"   "$SRC"
+          GOOS=windows GOARCH=amd64 go build -C httptape-src -trimpath -ldflags="$LDFLAGS" -o "$OUT/binary-win32-x64/bin/httptape.exe" "$SRC"
 
       - name: Set package versions
         run: |
