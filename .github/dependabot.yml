@@ -42,6 +42,15 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # typescript-eslint 8.72 peers on typescript ">=4.8.4 <6.1.0", so
+      # TypeScript 7 breaks linting. Drop once typescript-eslint supports it.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # Vitest 5 requires Node 22, but CI still tests Node 20 and the
+      # packages declare engines.node ">=20". Drop once Node 20 support ends.
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
 
   # ----- GitHub Actions (ci.yml, release.yml) -----
   - package-ecosystem: "github-actions"
